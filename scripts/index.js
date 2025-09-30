@@ -2436,8 +2436,6 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
     cooltime(2, ev.source, 60);
   }
 });
-
-//コロンブスの卵
 //奴隷支配,相手の因果を奪う？
 //アンカー,ひっぱれ！！！
 server.world.afterEvents.itemUse.subscribe((ev) => {
