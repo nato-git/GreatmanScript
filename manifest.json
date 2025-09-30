@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "偉人島item",
+    "description": "偉人島itemパック",
+    "uuid": "9b211c3a-8641-47aa-9a93-56b968e900f4",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 10]
+  },
+  "modules": [
+    {
+      "description": " ",
+      "type": "script",
+      "entry": "scripts/index.js",
+      "uuid": "10a6475b-d173-4436-a02e-75342239e92c",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.10.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.1.0"
+    }
+  ]
+}
