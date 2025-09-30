@@ -710,7 +710,7 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
       if (nimonimomakezu > /*秒数*/ 560) {
         server.system.clearRun(amenimonimo);
       }
-    });
+    }, 10);
     var RainIsLoser = [
       '§l§4雨ニモマケズ',
       '§l§4風ニモマケズ',
@@ -882,6 +882,46 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
         server.system.clearRun(Rain);
       }
     }, 20);
+  }
+  if (ev.itemStack.typeId === 'minecraft:netherite_ingot') {
+    const chumon = Math.floor(Math.random() * 10 + 1);
+    if (chumon == 1) {
+      //注文が1のとき(shift)
+      let shift = 0;
+      ev.source.runCommandAsync('scoreboard players set @a shaganda 0');
+      ev.source.runCommandAsync(
+        'tellraw @a {"rawtext":[{"text":"§4きちんとしゃがんでください"}]}'
+      );
+      const shagamanakorosu = server.system.runInterval(() => {
+        shift++;
+        for (const player of server.world.getAllPlayers()) {
+          if (!player.hasTag('宮沢賢治')) {
+            if (player.isSneaking) {
+              player.runCommandAsync('scoreboard players set @s syaganda 1'); //shagandaが1のときしゃがんだとする
+            }
+          }
+        }
+        if (shift >= 100) {
+          ev.source.runCommandAsync(
+            'effect @a[scores={"shaganda"=0},tag=!宮沢賢治] hunger 15 1'
+          );
+          ev.source.runCommandAsync(
+            'effect @a[scores={"shaganda"=0},tag=!宮沢賢治] blindness 15 255'
+          );
+          ev.source.runCommandAsync(
+            'scoreboard players remove @a[scores={"shaganda"=0},tag=!宮沢賢治] seishin 1'
+          );
+          ev.source.runCommandAsync(
+            'scoreboard players remove @a[scores={"shaganda"=0},tag=!宮沢賢治] seni 1'
+          );
+          ev.source.runCommandAsync(
+            'scoreboard players remove @a[scores={"shaganda"=0},tag=!宮沢賢治] bougo 1'
+          );
+          server.system.clearRun(shagamanakorosu);
+        }
+      });
+    }
+    //...
   } else if (ev.itemStack.typeId === 'minecraft:stick') {
     const seni = get_score('seni', ev.source);
     const satui = get_score('satui', ev.source);
@@ -2436,8 +2476,12 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
     cooltime(2, ev.source, 60);
   }
 });
+
 //奴隷支配,相手の因果を奪う？
 //アンカー,ひっぱれ！！！
+let sea = 0;
+let zonbi = 0;
+
 server.world.afterEvents.itemUse.subscribe((ev) => {
   if (
     ev.itemStack.typeId == 'minecraft:arrow' &&
@@ -2492,5 +2536,151 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
         server.system.clearRun(anchors);
       }
     });
+  } else if (
+    ev.source.hasTag('クリストファー・コロンブス') &&
+    ev.itemStack.typeId == 'minecraft:clock'
+  ) {
+    if (ev.source.hasTag('pineapple')) {
+      ev.source.sendMessage('能力を終了しました');
+
+      if (sea !== 0) server.system.clearRun(sea);
+      sea = 0;
+      ev.source.runCommandAsync('tag @s remove pineapple');
+      return;
+    }
+    if (get_score('cooltime_3', ev.source) > 0) {
+      ev.source.sendMessage('クールタイム中です');
+      return;
+    }
+    ev.source.runCommandAsync('tag @s add pineapple');
+    ev.source.sendMessage('能力を開始しました');
+    sea = server.system.runInterval(() => {
+      for (const dango of server.world.getAllPlayers()) {
+        if (
+          dango.hasTag('クリストファー・コロンブス') &&
+          dango.hasTag('pineapple')
+        ) {
+          cooltime(3, dango, 10);
+          dango.runCommandAsync('clear @s minecraft:gold_nugget 5 5');
+          if (!has_item('minecraft:gold_nugget', dango, 5)) {
+            dango.sendMessage('金塊が無くなりました');
+            dango.runCommandAsync('tag @s remove pineapple');
+            server.system.clearRun(sea);
+            sea = 0;
+            return;
+          }
+        } else if (!dango.hasTag('クリストファー・コロンブス')) {
+          checksea(dango, 'ocean');
+        } else {
+          if (sea !== 0) {
+            server.system.clearRun(sea);
+            sea = 0;
+            return;
+          }
+        }
+      }
+    }, 15);
+  } else if (
+    ev.source.hasTag('クリストファー・コロンブス') &&
+    ev.itemStack.typeId == 'minecraft:diamond'
+  ) {
+    if (ev.source.hasTag('strawberry')) {
+      ev.source.sendMessage('能力を終了しました');
+      if (zonbi !== 0) {
+        server.system.clearRun(zonbi);
+        zonbi = 0;
+        ev.source.runCommandAsync('tag @s remove strawberry');
+        return;
+      }
+    }
+    if (get_score('cooltime_4', ev.source) > 0) {
+      ev.source.sendMessage('クールタイム中です');
+      return;
+    }
+    ev.source.runCommandAsync('tag @s add strawberry');
+    ev.source.sendMessage('能力を開始しました（ON）');
+
+    zonbi = server.system.runInterval(() => {
+      for (const dango of server.world.getAllPlayers()) {
+        if (
+          dango.hasTag('クリストファー・コロンブス') &&
+          dango.hasTag('strawberry')
+        ) {
+          cooltime(4, dango, 25);
+          dango.runCommandAsync('clear @s minecraft:gold_nugget 5 10');
+          if (!has_item('minecraft:gold_nugget', dango, 10)) {
+            dango.sendMessage('金塊が切れました');
+            dango.runCommandAsync('tag @s remove strawberry');
+            server.system.clearRun(zonbi);
+            zonbi = 0;
+            return;
+          }
+        } else if (!dango.hasTag('クリストファー・コロンブス')) {
+          checkzonbi(dango, 'ocean');
+        } else {
+          if (zonbi !== 0) {
+            server.system.clearRun(zonbi);
+            zonbi = 0;
+            return;
+          }
+        }
+      }
+    }, 40);
   }
 });
+
+function has_item(itemName, player, value) {
+  // インベントリのContainerオブジェクトを取得
+  const inventoryComponent = player.getComponent('minecraft:inventory');
+  if (!inventoryComponent) {
+    return false; // インベントリコンポーネントがない場合はfalse
+  }
+  const container = inventoryComponent.container;
+
+  for (let i = 0; i < container.size; i++) {
+    const itemStack = container.getItem(i);
+    if (
+      itemStack &&
+      itemStack.typeId === itemName &&
+      itemStack.amount >= value
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function checksea(player, areaName) {
+  const polygon = definedAreas.get(areaName);
+
+  if (!polygon) {
+    // player.sendMessage(`§c領域「${areaName}」は定義されていません。`); // 頻繁な表示を避けるためコメントアウト
+    return;
+  }
+
+  const playerX = player.location.x;
+  const playerZ = player.location.z;
+
+  if (isPointInPolygon(playerX, playerZ, polygon) && areaName == 'ocean') {
+    player.runCommandAsync('effect @s slowness 2 5');
+    player.runCommandAsync('particle minecraft:creaking_crumble_body ~~0.45~');
+  }
+}
+function checkzonbi(player, areaName) {
+  const polygon = definedAreas.get(areaName);
+
+  if (!polygon) {
+    // player.sendMessage(`§c領域「${areaName}」は定義されていません。`); // 頻繁な表示を避けるためコメントアウト
+    return;
+  }
+
+  const playerX = player.location.x;
+  const playerZ = player.location.z;
+
+  if (isPointInPolygon(playerX, playerZ, polygon) && areaName == 'ocean') {
+    player.runCommandAsync('summon drowned zon ~~2~');
+    player.runCommandAsync('effect @s weakness 2 1');
+    player.runCommandAsync('particle minecraft:shriek_particle ~~0.3~');
+  }
+}
